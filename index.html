@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -118,3 +119,298 @@
             position: absolute;
             left: -100%; /* Start outside */
             top: 0;
+            height: 100%;
+            width: 100%;
+            background: rgba(244, 114, 182, 0.15); /* Very light pink tint */
+            transition: left 4s linear;
+        }
+
+        .liquid-flow.active {
+            left: 0;
+        }
+
+        /* The Lines (C and T) */
+        .line {
+            width: 5px;
+            height: 28px;
+            background: #ec4899; /* Pink color for positive */
+            border-radius: 4px;
+            opacity: 0; /* Hidden initially */
+            z-index: 2;
+            box-shadow: 0 0 5px rgba(236, 72, 153, 0.4);
+        }
+
+        /* Custom Slider Styling */
+        .slider-container {
+            position: relative;
+            width: 100%;
+            max-width: 280px;
+            margin: 20px auto 0;
+        }
+
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        
+        input[type=range]:focus {
+            outline: none;
+        }
+
+        /* Track */
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 44px;
+            cursor: pointer;
+            background: #e2e8f0;
+            border-radius: 30px;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        /* Thumb (The draggable part) */
+        input[type=range]::-webkit-slider-thumb {
+            height: 38px;
+            width: 38px;
+            border-radius: 50%;
+            background: #fff;
+            cursor: pointer;
+            -webkit-appearance: none;
+            margin-top: 3px;
+            margin-right: 3px; /* RTL fix */
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%23ec4899" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>');
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        .slider-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #64748b;
+            font-weight: 600;
+            pointer-events: none;
+            font-size: 0.9rem;
+            width: 100%;
+            text-align: center;
+            transition: opacity 0.3s;
+        }
+
+        /* Celebration text hidden initially */
+        .celebration-text {
+            display: none;
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .celebration-text.show {
+            display: block;
+            opacity: 1;
+            transform: scale(1);
+        }
+
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <!-- Floating Background Elements (Injected via JS for randomness) -->
+    <div id="floating-bg"></div>
+
+    <!-- Main Content Container -->
+    <div class="glass-card w-[90%] max-w-md p-8 text-center relative border-4 border-white">
+        
+        <!-- Header -->
+        <div id="header-section">
+            <h1 class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-purple-500 mb-2">
+                عندي ليك مفاجأة! 🎁
+            </h1>
+            <p class="text-gray-500 mb-8 font-medium">عشان تعرف السر، شغل الاختبار و شوف النتيجة بنفسك...</p>
+        </div>
+
+        <!-- The Pregnancy Test Stick -->
+        <div class="test-stick mb-8 relative">
+            <div class="test-cap">
+                <!-- Decorative grips on cap -->
+                <div class="h-full w-full flex flex-col justify-center items-center gap-1 opacity-30">
+                    <div class="w-2 h-8 bg-white rounded-full"></div>
+                    <div class="w-2 h-8 bg-white rounded-full"></div>
+                </div>
+            </div>
+            
+            <div class="test-body">
+                <!-- Labels (C and T) -->
+                <div class="absolute top-1 w-[90px] flex justify-space-between px-2 text-xs font-bold text-gray-400" style="right: 50%; transform: translateX(50%);">
+                    <span class="mr-2">C</span>
+                    <span class="ml-2">T</span>
+                </div>
+
+                <!-- Test Screen -->
+                <div class="test-screen">
+                    <div class="liquid-flow" id="liquid"></div>
+                    <!-- Control Line (Always appears first) -->
+                    <div class="line" id="line-c"></div>
+                    <!-- Test Line (Appears second - The positive result!) -->
+                    <div class="line" id="line-t"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interaction Area -->
+        <div id="interaction-section">
+            <div class="slider-container">
+                <div class="slider-text" id="slider-label">اسحب لليسار لمعرفة النتيجة</div>
+                <!-- Range slider from 0 to 100. Starts at 0 (Right in RTL) -->
+                <input type="range" min="0" max="100" value="0" id="reveal-slider">
+            </div>
+            <p id="status-text" class="text-sm text-pink-500 font-bold mt-4 h-5"></p>
+        </div>
+
+        <!-- Final Celebration Reveal -->
+        <div id="celebration-section" class="celebration-text mt-6">
+            <h2 class="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-600 to-purple-600 mb-4 leading-tight">
+                احنا مستنيين بيبي! <br> 👶🍼🎉
+            </h2>
+            <p class="text-lg text-gray-700 font-bold bg-pink-100 py-2 px-4 rounded-full inline-block">
+                فرد جديد هينور عيلتنا قريباً 💖
+            </p>
+        </div>
+
+    </div>
+
+    <script>
+        // 1. Generate floating background elements for the joyful theme
+        const emojis = ['🍼', '🧸', '👶', '🌟', '💖', '🎈', '👼', '👣'];
+        const floatingBg = document.getElementById('floating-bg');
+        
+        for (let i = 0; i < 20; i++) {
+            let el = document.createElement('div');
+            el.className = 'floating-item';
+            el.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+            // Random positioning and delay
+            el.style.left = Math.random() * 100 + 'vw';
+            el.style.animationDuration = (Math.random() * 10 + 10) + 's';
+            el.style.animationDelay = (Math.random() * -20) + 's';
+            floatingBg.appendChild(el);
+        }
+
+        // 2. Setup interaction logic
+        const slider = document.getElementById('reveal-slider');
+        const sliderLabel = document.getElementById('slider-label');
+        const statusText = document.getElementById('status-text');
+        
+        const liquid = document.getElementById('liquid');
+        const lineC = document.getElementById('line-c');
+        const lineT = document.getElementById('line-t');
+        
+        const headerSection = document.getElementById('header-section');
+        const interactionSection = document.getElementById('interaction-section');
+        const celebrationSection = document.getElementById('celebration-section');
+
+        let isTesting = false;
+
+        // Listen to slider movement
+        slider.addEventListener('input', function(e) {
+            if (isTesting) return;
+
+            const val = e.target.value;
+            
+            // Fade out the label text as they drag
+            sliderLabel.style.opacity = 1 - (val / 50);
+
+            // If dragged to the end (100)
+            if (val >= 95) {
+                isTesting = true;
+                slider.value = 100; // lock at end
+                slider.disabled = true; // disable further dragging
+                startPregnancyTest();
+            }
+        });
+
+        // 3. The Animation Sequence
+        function startPregnancyTest() {
+            // Update UI status
+            sliderLabel.style.display = 'none';
+            statusText.innerText = "جاري تحليل العينة... ⏳";
+            
+            // Step 1: Liquid flows across the screen (takes 3 seconds)
+            // Note: because RTL, left goes from -100% to 0.
+            liquid.classList.add('active');
+
+            // Step 2: Show Control Line (C) - Shows that test is working (after 2 seconds)
+            setTimeout(() => {
+                lineC.style.transition = "opacity 1s ease-in";
+                lineC.style.opacity = "1";
+            }, 2000);
+
+            // Step 3: Suspense... Show Test Line (T) - The Positive Result! (after 4.5 seconds)
+            setTimeout(() => {
+                statusText.innerText = "تأكيد النتيجة... 💓";
+                lineT.style.transition = "opacity 1.5s ease-in";
+                lineT.style.opacity = "1";
+            }, 4500);
+
+            // Step 4: BOOM! Celebration (after 6.5 seconds)
+            setTimeout(() => {
+                triggerCelebration();
+            }, 6500);
+        }
+
+        function triggerCelebration() {
+            // Hide the interaction section smoothly
+            interactionSection.style.transition = "opacity 0.5s";
+            interactionSection.style.opacity = "0";
+            
+            setTimeout(() => {
+                interactionSection.style.display = "none";
+                
+                // Show the big reveal text
+                celebrationSection.classList.add('show');
+                
+                // Fire Confetti!
+                fireConfetti();
+                
+                // Keep firing a bit of confetti every second for 3 seconds
+                let count = 0;
+                let interval = setInterval(() => {
+                    fireConfetti();
+                    count++;
+                    if(count >= 3) clearInterval(interval);
+                }, 1000);
+
+            }, 500);
+        }
+
+        // 4. Confetti helper function
+        function fireConfetti() {
+            var duration = 3 * 1000;
+            var end = Date.now() + duration;
+
+            (function frame() {
+                // Fire from left edge
+                confetti({
+                    particleCount: 5,
+                    angle: 60,
+                    spread: 55,
+                    origin: { x: 0 },
+                    colors: ['#ffb6c1', '#87cefa', '#ff69b4', '#fffacd']
+                });
+                // Fire from right edge
+                confetti({
+                    particleCount: 5,
+                    angle: 120,
+                    spread: 55,
+                    origin: { x: 1 },
+                    colors: ['#ffb6c1', '#87cefa', '#ff69b4', '#fffacd']
+                });
+
+                if (Date.now() < end) {
+                    requestAnimationFrame(frame);
+                }
+            }());
+        }
+    </script>
+</body>
+</html>
+```
